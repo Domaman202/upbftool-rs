@@ -8,6 +8,9 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: write
+
 env:
   APP_NAME: upbftool
 
@@ -16,7 +19,7 @@ jobs:
     name: Сборка для ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false 
+      fail-fast: false
       matrix:
         include:
           # Linux x86_64
