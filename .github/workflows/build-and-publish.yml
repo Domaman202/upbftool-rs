@@ -1,77 +1,80 @@
 name: Build and Publish Rust CLI
 
 on:
+  # Ручной запуск через интерфейс GitHub Actions
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release tag (leave empty to only upload artifacts)'
+        description: 'Тег релиза (оставьте пустым, чтобы только сохранить артефакты)'
         required: false
         type: string
 
+# Глобальная переменная с именем бинарного файла
 env:
   APP_NAME: upbftool
 
 jobs:
+  # Джоба сборки под все платформы (матрица)
   build:
-    name: Build for ${{ matrix.target }}
+    name: Сборка для ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      fail-fast: false       # Не останавливать остальные сборки при ошибке одной
       matrix:
         include:
-          # Linux x86_64 (musl, static)
+          # Linux x86_64 (статическая сборка с musl)
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
             use_cross: false
-            artifact_name: ${{ env.APP_NAME }}-x86_64-unknown-linux-musl
+            suffix: x86_64-unknown-linux-musl
             extension: ""
 
-          # Linux ARM64 (musl, static, via cross)
+          # Linux ARM64 (сборка через cross, так как нужен кросс-компилятор)
           - os: ubuntu-latest
             target: aarch64-unknown-linux-musl
             use_cross: true
-            artifact_name: ${{ env.APP_NAME }}-aarch64-unknown-linux-musl
+            suffix: aarch64-unknown-linux-musl
             extension: ""
 
           # Windows x86_64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             use_cross: false
-            artifact_name: ${{ env.APP_NAME }}-x86_64-pc-windows-msvc
+            suffix: x86_64-pc-windows-msvc
             extension: .exe
 
-          # macOS Intel
-          - os: macos-13            # Intel runner
+          # macOS Intel (используем старый раннер с Intel CPU)
+          - os: macos-13
             target: x86_64-apple-darwin
             use_cross: false
-            artifact_name: ${{ env.APP_NAME }}-x86_64-apple-darwin
+            suffix: x86_64-apple-darwin
             extension: ""
 
-          # macOS Apple Silicon
-          - os: macos-latest        # ARM64 runner
+          # macOS Apple Silicon (ARM64)
+          - os: macos-latest
             target: aarch64-apple-darwin
             use_cross: false
-            artifact_name: ${{ env.APP_NAME }}-aarch64-apple-darwin
+            suffix: aarch64-apple-darwin
             extension: ""
 
     steps:
-      - name: Checkout code
+      - name: Клонирование репозитория
         uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
+      - name: Установка Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
-      - name: Install cross (if needed)
+      - name: Установка cross (если нужен для кросс-компиляции)
         if: matrix.use_cross == true
         run: cargo install cross
 
-      - name: Install musl tools (Linux x86_64 only)
+      - name: Установка musl-tools (только для Linux x86_64)
         if: matrix.target == 'x86_64-unknown-linux-musl'
         run: sudo apt-get update && sudo apt-get install -y musl-tools
 
-      - name: Build binary
+      - name: Сборка бинарного файла
         shell: bash
         run: |
           if [ "${{ matrix.use_cross }}" = "true" ]; then
@@ -80,34 +83,34 @@ jobs:
             cargo build --release --target ${{ matrix.target }}
           fi
 
-      - name: Prepare artifact
+      - name: Подготовка артефакта (копирование и переименование)
         shell: bash
         run: |
           BIN_PATH="target/${{ matrix.target }}/release/${{ env.APP_NAME }}${{ matrix.extension }}"
-          ARTIFACT_NAME="${{ matrix.artifact_name }}${{ matrix.extension }}"
+          ARTIFACT_NAME="${{ env.APP_NAME }}-${{ matrix.suffix }}${{ matrix.extension }}"
           cp "$BIN_PATH" "$ARTIFACT_NAME"
           echo "artifact_path=$ARTIFACT_NAME" >> $GITHUB_ENV
 
-      - name: Upload artifact (GitHub Actions)
+      - name: Загрузка артефакта в GitHub Actions
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
+          name: ${{ env.APP_NAME }}-${{ matrix.suffix }}
           path: ${{ env.artifact_path }}
           if-no-files-found: error
 
-  # Создание релиза (опционально)
+  # Джоба создания GitHub-релиза (запускается только если указан tag_name)
   create-release:
-    name: Create GitHub Release
+    name: Создание GitHub Release
     runs-on: ubuntu-latest
     needs: build
     if: github.event.inputs.tag_name != ''
     steps:
-      - name: Download all artifacts
+      - name: Скачивание всех артефактов
         uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: Create Release
+      - name: Создание релиза
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.event.inputs.tag_name }}
