@@ -1,0 +1,84 @@
+# Команды
+cmd:
+  # Ошибки
+  err:
+    # Аргументы
+    arg_get: "Ошибка чтения аргумента: %{arg}"
+    # IO
+    stdin: "Ошибка чтения входного потока данных"
+    stdout: "Ошибка записи выходного потока данных"
+    file_read: "Ошибка чтения файла: %{cause}"
+    file_write: "Ошибка записи файла: %{cause}"
+    # UPBF
+    reader: "Ошибка считывания файла: %{cause}"
+    writer: "Ошибка записи файла: %{cause}"
+    data_not_found: "Блок данных не найден"
+    unknown_type: "Неизвестный тип: %{r#type}\nДоступные типы:"
+
+  # Общие команды
+  about: Утилиты для управления UPBF файлами
+  help: Вывод помощи
+  version: Вывод версии
+
+  # Команда 'info'
+  info:
+    about: Вывод информации о UPBF файле
+    arg:
+      file: Файл
+    exec:
+      file:
+        file:    "Файл:          %{file}"
+        type:    "Тип файла:     %{file_type}"
+        version: "Версия файла:  %{file_version}"
+      build:
+        name:    "Имя сборки:    %{build_name}"
+        version: "Версия сборки: %{build_version}"
+      data_format_list: "Блоки форматов данных:"
+      data_format: "- %{data_format_name} (%{data_format_id})"
+      data_list: "Блоки данных:"
+      data: "- [%{data_format}] %{data_name} (%{data_length})"
+
+  # Команда 'new'
+  new:
+    about: Создание нового UPBF файла
+    arg:
+      file: Файл
+      file_type: Тип файла
+      build_name: Имя сборки
+      build_version: Версия сборки
+
+  # Команда 'write'
+  write:
+    about: Запись блока данных в UPBF файл
+    arg:
+      file: Файл
+      data_name: Имя блока данных
+      data_format: Формат блока данных
+
+  # Команда 'read'
+  read:
+    about: Чтение блока данных из UPBF файла
+    arg:
+      file: Файл
+      data_name: Имя блока данных
+
+  # Команда 'convert'
+  convert:
+    about: Преобразование UPBF файла в другой тип
+    arg:
+      file_in: Входной файл
+      file_out: Выходной файл
+      file_type: Целевой тип файла
+
+
+# Формат
+upbf:
+  type:
+    mal: MAL / СВМ (Средний, Выровненный, Little-Endian)
+    mab: MAB / СВС (Средний, Выровненный, Big-Endian)
+    bal: BAL / БВМ (Большой, Выровненный, Little-Endian)
+    bab: BAB / БВС (Большой, Выровненный, Big-Endian)
+
+  version:
+    supported: Поддерживаемая
+    unsupported: Неподдерживаемая

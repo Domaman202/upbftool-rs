@@ -1,0 +1,84 @@
+# Commands
+cmd:
+  # Errors
+  err:
+    # Arguments
+    arg_get: "Error reading argument: %{arg}"
+    # IO
+    stdin: "Error reading input stream"
+    stdout: "Error writing output stream"
+    file_read: "Error reading file: %{cause}"
+    file_write: "Error writing file: %{cause}"
+    # UPBF
+    reader: "Error reading file: %{cause}"
+    writer: "Error writing file: %{cause}"
+    data_not_found: "Data block not found"
+    unknown_type: "Unknown type: %{r#type}\nAvailable types:"
+
+  # Common commands
+  about: Utilities for managing UPBF files
+  help: Display help
+  version: Display version
+
+  # 'info' command
+  info:
+    about: Display information about a UPBF file
+    arg:
+      file: File
+    exec:
+      file:
+        file:    "File:          %{file}"
+        type:    "File type:     %{file_type}"
+        version: "File version:  %{file_version}"
+      build:
+        name:    "Build name:    %{build_name}"
+        version: "Build version: %{build_version}"
+      data_format_list: "Data format blocks:"
+      data_format: "- %{data_format_name} (%{data_format_id})"
+      data_list: "Data blocks:"
+      data: "- [%{data_format}] %{data_name} (%{data_length})"
+
+  # 'new' command
+  new:
+    about: Create a new UPBF file
+    arg:
+      file: File
+      file_type: File type
+      build_name: Build name
+      build_version: Build version
+
+  # 'write' command
+  write:
+    about: Write a data block to a UPBF file
+    arg:
+      file: File
+      data_name: Data block name
+      data_format: Data block format
+
+  # 'read' command
+  read:
+    about: Read a data block from a UPBF file
+    arg:
+      file: File
+      data_name: Data block name
+
+  # 'convert' command
+  convert:
+    about: Convert a UPBF file to another type
+    arg:
+      file_in: Input file
+      file_out: Output file
+      file_type: Target file type
+
+
+# Format
+upbf:
+  type:
+    mal: MAL (Medium, Aligned, Little-Endian)
+    mab: MAB (Medium, Aligned, Big-Endian)
+    bal: BAL (Large,  Aligned, Little-Endian)
+    bab: BAB (Large,  Aligned, Big-Endian)
+
+  version:
+    supported: Supported
+    unsupported: Unsupported
