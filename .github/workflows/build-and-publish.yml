@@ -97,6 +97,30 @@ jobs:
             cargo build --release --target ${{ matrix.target }}
           fi
 
+      - name: Strip бинарного файла (удаление отладочных символов)
+        shell: bash
+        run: |
+          BIN_PATH="target/${{ matrix.target }}/release/${{ env.APP_NAME }}${{ matrix.extension }}"
+          
+          # Выбираем команду strip
+          if [ "${{ matrix.use_cross }}" = "true" ]; then
+            STRIP_CMD="cross strip"
+          else
+            STRIP_CMD="strip"
+          fi
+          
+          # Особый случай для Windows (используем strip из MSYS2)
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            # MSYS2 strip.exe находится в /usr/bin/ (доступен через bash)
+            STRIP_CMD="/usr/bin/strip"
+          fi
+          
+          echo "Запуск strip: $STRIP_CMD \"$BIN_PATH\""
+          $STRIP_CMD "$BIN_PATH" || echo "strip не сработал (возможно, уже без символов)"
+          
+          # Проверяем размер после strip
+          ls -lh "$BIN_PATH"
+
       - name: Подготовка артефакта (копирование и переименование)
         shell: bash
         run: |
