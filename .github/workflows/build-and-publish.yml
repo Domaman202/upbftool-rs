@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 env:
-  APP_NAME: upbftool
+  APP_NAME: xpbftool
 
 jobs:
   build:
