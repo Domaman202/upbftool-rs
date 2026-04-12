@@ -1,4 +1,5 @@
 mod cli;
+mod xpbf;
 
 use crate::cli::cli_process;
 use rust_i18n::{i18n, set_locale};

@@ -5,24 +5,24 @@ cmd:
     # Arguments
     arg_get: "Error reading argument: %{arg}"
     # IO
-    stdin: "Error reading input stream"
-    stdout: "Error writing output stream"
+    stdin: "Error reading input data stream"
+    stdout: "Error writing output data stream"
     file_read: "Error reading file: %{cause}"
     file_write: "Error writing file: %{cause}"
-    # UPBF
+    # XPBF
     reader: "Error reading file: %{cause}"
     writer: "Error writing file: %{cause}"
     data_not_found: "Data block not found"
     unknown_type: "Unknown type: %{r#type}\nAvailable types:"
 
   # Common commands
-  about: Utilities for managing UPBF files
-  help: Display help
-  version: Display version
+  about: Utilities for managing XPBF (SPBF / UPBF) files
+  help: Print help
+  version: Print version
 
-  # 'info' command
+  # Command 'info'
   info:
-    about: Display information about a UPBF file
+    about: Print information about XPBF file
     arg:
       file: File
     exec:
@@ -38,47 +38,112 @@ cmd:
       data_list: "Data blocks:"
       data: "- [%{data_format}] %{data_name} (%{data_length})"
 
-  # 'new' command
+  # Command 'new'
   new:
-    about: Create a new UPBF file
+    about: Create a new XPBF file
     arg:
       file: File
       file_type: File type
       build_name: Build name
       build_version: Build version
 
-  # 'write' command
+  # Command 'write'
   write:
-    about: Write a data block to a UPBF file
+    about: Write a data block to XPBF file
     arg:
       file: File
       data_name: Data block name
       data_format: Data block format
 
-  # 'read' command
-  read:
-    about: Read a data block from a UPBF file
+  # Command 'remove'
+  remove:
+    about: Remove a data block from XPBF file
     arg:
       file: File
       data_name: Data block name
 
-  # 'convert' command
+  # Command 'read'
+  read:
+    about: Read a data block from XPBF file
+    arg:
+      file: File
+      data_name: Data block name
+
+  # Command 'convert'
   convert:
-    about: Convert a UPBF file to another type
+    about: Convert XPBF file to another type
     arg:
       file_in: Input file
       file_out: Output file
       file_type: Target file type
 
 
-# Format
-upbf:
+# SPBF & UPBF combination
+xpbf:
+  # Type
   type:
-    mal: MAL (Medium, Aligned, Little-Endian)
-    mab: MAB (Medium, Aligned, Big-Endian)
-    bal: BAL (Large,  Aligned, Little-Endian)
-    bab: BAB (Large,  Aligned, Big-Endian)
+    # SPBF
+    sul: SUL (Small, unaligned, Little-Endian)
+    sub: SUB (Small, unaligned, Big-Endian)
+    sal: SAL (Small, aligned, Little-Endian)
+    sab: SAB (Small, aligned, Big-Endian)
+    # UPBF
+    mal: MAL (Medium, aligned, Little-Endian)
+    mab: MAB (Medium, aligned, Big-Endian)
+    bal: BAL (Big, aligned, Little-Endian)
+    bab: BAB (Big, aligned, Big-Endian)
 
+  # Version
   version:
     supported: Supported
     unsupported: Unsupported
+
+  # Error
+  err:
+    # Read
+    read:
+      invalid_file_length: Invalid file structure
+      header:
+        invalid_magic: Invalid magic number
+        invalid_type: Invalid file type
+        unsupported_version: Unsupported file version
+        invalid_build_name_length: Invalid build name length
+        invalid_build_name_string: Invalid build name string
+        invalid_build_version_length: Invalid build version length
+        invalid_build_version_string: Invalid build version string
+      data_format:
+        invalid_offset: Invalid data format block offset
+        invalid_name_length: Invalid name length in data format block
+        invalid_name_string: Invalid name string in data format block
+      data:
+        invalid_offset: Invalid data block offset
+        invalid_name_length: Invalid name length in data block
+        invalid_name_string: Invalid name string in data block
+        invalid_data_length: Invalid data size in data block
+        invalid_data_id: Invalid data identifier in data block
+    # Write
+    write:
+      data_add:
+        data_already_defined: Data block with this name already exists
+        format_counter_overflow: Data format identifier overflow
+      write:
+        unsupported_version: Unsupported file version
+        invalid_build_name_length: Invalid build name length
+        invalid_build_name_string: Invalid build name string
+        invalid_build_version_length: Invalid build version length
+        invalid_build_version_string: Invalid build version string
+        invalid_data_format_name_length: Invalid name length in data format block
+        invalid_data_format_name_string: Invalid name string in data format block
+        invalid_data_name_length: Invalid name length in data block
+        invalid_data_name_string: Invalid name string in data block
+        invalid_data_length: Invalid data size in data block
+        invalid_offset: Invalid offset
+    # Remove
+    remove:
+      not_exits: Data block does not exist
+    # Convert
+    convert:
+      no_spbf_type: Expected SPBF format type, got UPBF format type.
+      no_upbf_type: Expected UPBF format type, got SPBF format type.
+      no_spbf_version: Expected SPBF format version, got UPBF format version.
+      no_upbf_version: Expected UPBF format version, got SPBF format version.

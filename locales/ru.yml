@@ -9,20 +9,20 @@ cmd:
     stdout: "Ошибка записи выходного потока данных"
     file_read: "Ошибка чтения файла: %{cause}"
     file_write: "Ошибка записи файла: %{cause}"
-    # UPBF
+    # XPBF
     reader: "Ошибка считывания файла: %{cause}"
     writer: "Ошибка записи файла: %{cause}"
     data_not_found: "Блок данных не найден"
     unknown_type: "Неизвестный тип: %{r#type}\nДоступные типы:"
 
   # Общие команды
-  about: Утилиты для управления UPBF файлами
+  about: Утилиты для управления XPBF (SPBF / UPBF) файлами
   help: Вывод помощи
   version: Вывод версии
 
   # Команда 'info'
   info:
-    about: Вывод информации о UPBF файле
+    about: Вывод информации о XPBF файле
     arg:
       file: Файл
     exec:
@@ -40,7 +40,7 @@ cmd:
 
   # Команда 'new'
   new:
-    about: Создание нового UPBF файла
+    about: Создание нового XPBF файла
     arg:
       file: Файл
       file_type: Тип файла
@@ -49,36 +49,101 @@ cmd:
 
   # Команда 'write'
   write:
-    about: Запись блока данных в UPBF файл
+    about: Запись блока данных в XPBF файл
     arg:
       file: Файл
       data_name: Имя блока данных
       data_format: Формат блока данных
 
+  # Команда 'remove'
+  remove:
+    about: Удаление блока данных из XPBF файла
+    arg:
+      file: Файл
+      data_name: Имя блока данных
+
   # Команда 'read'
   read:
-    about: Чтение блока данных из UPBF файла
+    about: Чтение блока данных из XPBF файла
     arg:
       file: Файл
       data_name: Имя блока данных
 
   # Команда 'convert'
   convert:
-    about: Преобразование UPBF файла в другой тип
+    about: Преобразование XPBF файла в другой тип
     arg:
       file_in: Входной файл
       file_out: Выходной файл
       file_type: Целевой тип файла
 
 
-# Формат
-upbf:
+# Комбинация SPBF & UPBF
+xpbf:
+  # Тип
   type:
-    mal: MAL / СВМ (Средний, Выровненный, Little-Endian)
-    mab: MAB / СВС (Средний, Выровненный, Big-Endian)
-    bal: BAL / БВМ (Большой, Выровненный, Little-Endian)
-    bab: BAB / БВС (Большой, Выровненный, Big-Endian)
-
+    # SPBF
+    sul: SUL / МБМ (Малый, Без выравнивания, Little-Endian)
+    sub: SUB / МБС (Малый, Без выравнивания, Big-Endian)
+    sal: SAL / МВМ (Малый, Выравненный, Little-Endian)
+    sab: SAB / МВС (Малый, Выравненный, Big-Endian)
+    # UPBF
+    mal: MAL / СВМ (Средний, Выравненный, Little-Endian)
+    mab: MAB / СВС (Средний, Выравненный, Big-Endian)
+    bal: BAL / БВМ (Большой, Выравненный, Little-Endian)
+    bab: BAB / БВС (Большой, Выравненный, Big-Endian)
+  
+  # Версия
   version:
     supported: Поддерживаемая
     unsupported: Неподдерживаемая
+  
+  # Ошибка
+  err:
+    # Чтения
+    read:
+      invalid_file_length: Неверная структура файла
+      header:
+        invalid_magic: Неверное магическое число
+        invalid_type: Неверные тип файла
+        unsupported_version: Неподдерживаемая версия файла
+        invalid_build_name_length: Неверная длина имени сборки
+        invalid_build_name_string: Неверная строка имени сборки
+        invalid_build_version_length: Неверная длина версии сборки
+        invalid_build_version_string: Неверная строка версии сборки
+      data_format:
+        invalid_offset: Неверное смещение блока формата данных
+        invalid_name_length: Неверная длина имени в блоке формата данных
+        invalid_name_string: Неверная строка имени в блоке формата данных
+      data:
+        invalid_offset: Неверное смещение блока данных
+        invalid_name_length: Неверная длина имени в блоке данных
+        invalid_name_string: Неверная строка имени в блоке данных
+        invalid_data_length: Неверный размер данных в блоке данных
+        invalid_data_id: Неверный идентификатор данных в блоке данных
+    # Записи
+    write:
+      data_add:
+        data_already_defined: Блок данных с таким именем уже существует
+        format_counter_overflow: Переполнение идентификаторов форматов данных
+      write:
+        unsupported_version: Неподдерживаемая версия файла
+        invalid_build_name_length: Неверная длина имени сборки
+        invalid_build_name_string: Неверная строка имени сборки
+        invalid_build_version_length: Неверная длина версии сборки
+        invalid_build_version_string: Неверная строка версии сборки
+        invalid_data_format_name_length: Неверная длина имени в блоке формата данных
+        invalid_data_format_name_string: Неверная строка имени в блоке формата данных
+        invalid_data_name_length: Неверная длина имени в блоке данных
+        invalid_data_name_string: Неверная строка имени в блоке данных
+        invalid_data_length: Неверный размер данных в блоке данных
+        invalid_offset: Неверное смещение
+    # Удаления
+    remove:
+      not_exits: Блок данных не существует
+    # Конвертация
+    convert:
+      no_spbf_type: Ожидался тип формата SPBF, получен тип формата UPBF.
+      no_upbf_type: Ожидался тип формата UPBF, получен тип формата SPBF.
+      no_spbf_version: Ожидалась версия формата SPBF, получена версия формата UPBF.
+      no_upbf_version: Ожидалась версия формата UPBF, получена версия формата SPBF.
