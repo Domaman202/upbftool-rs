@@ -41,7 +41,7 @@ fn cli_commands() -> Command {
                 .arg(i18n_arg!("FILE", "cmd.new.arg.file"))
                 .arg(i18n_arg!("FILE_TYPE", "cmd.new.arg.file_type"))
                 .arg(i18n_arg!("BUILD_NAME", "cmd.new.arg.build_name"))
-                .arg(i18n_arg!("BUILD_VERSION", "cnd.new.arg.build_version"))
+                .arg(i18n_arg!("BUILD_VERSION", "cmd.new.arg.build_version"))
         )
         .subcommand(
             Command::new("write")
