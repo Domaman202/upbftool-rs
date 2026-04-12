@@ -22,18 +22,32 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Linux x86_64
+          # Linux x86_64 (musl)
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
             use_cross: false
             suffix: x86_64-unknown-linux-musl
             extension: ""
 
-          # Linux ARM64
+          # Linux x86_64 (glibc)
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            use_cross: false
+            suffix: x86_64-unknown-linux-gnu
+            extension: ""
+
+          # Linux ARM64 (musl)
           - os: ubuntu-latest
             target: aarch64-unknown-linux-musl
             use_cross: true
             suffix: aarch64-unknown-linux-musl
+            extension: ""
+
+          # Linux ARM64 (glibc)
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            use_cross: true
+            suffix: aarch64-unknown-linux-gnu
             extension: ""
 
           # Windows x86_64
@@ -70,7 +84,7 @@ jobs:
         if: matrix.use_cross == true
         run: cargo install cross
 
-      - name: Установка musl-tools (только для Linux x86_64)
+      - name: Установка musl-tools (только для Linux x86_64 musl)
         if: matrix.target == 'x86_64-unknown-linux-musl'
         run: sudo apt-get update && sudo apt-get install -y musl-tools
 
