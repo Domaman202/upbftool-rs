@@ -88,6 +88,10 @@ jobs:
         if: matrix.target == 'x86_64-unknown-linux-musl'
         run: sudo apt-get update && sudo apt-get install -y musl-tools
 
+      - name: Установка binutils для кросс-strip (Linux aarch64)
+        if: contains(matrix.target, 'aarch64') && runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y binutils-aarch64-linux-gnu
+
       - name: Сборка бинарного файла
         shell: bash
         run: |
@@ -102,17 +106,14 @@ jobs:
         run: |
           BIN_PATH="target/${{ matrix.target }}/release/${{ env.APP_NAME }}${{ matrix.extension }}"
           
-          # Выбираем команду strip
-          if [ "${{ matrix.use_cross }}" = "true" ]; then
-            STRIP_CMD="cross strip"
+          # Выбор команды strip в зависимости от ОС и целевой архитектуры
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            STRIP_CMD="/usr/bin/strip"
+          elif [[ "${{ matrix.target }}" == "aarch64"* ]]; then
+            # Для aarch64 Linux используем специальный тулчейн strip
+            STRIP_CMD="aarch64-linux-gnu-strip"
           else
             STRIP_CMD="strip"
-          fi
-          
-          # Особый случай для Windows (используем strip из MSYS2)
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            # MSYS2 strip.exe находится в /usr/bin/ (доступен через bash)
-            STRIP_CMD="/usr/bin/strip"
           fi
           
           echo "Запуск strip: $STRIP_CMD \"$BIN_PATH\""
