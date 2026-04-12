@@ -1,7 +1,6 @@
 name: Build and Publish Rust CLI
 
 on:
-  # Ручной запуск через интерфейс GitHub Actions
   workflow_dispatch:
     inputs:
       tag_name:
@@ -9,27 +8,28 @@ on:
         required: false
         type: string
 
-# Глобальная переменная с именем бинарного файла
+permissions:
+  contents: write
+
 env:
   APP_NAME: upbftool
 
 jobs:
-  # Джоба сборки под все платформы (матрица)
   build:
     name: Сборка для ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false       # Не останавливать остальные сборки при ошибке одной
+      fail-fast: false
       matrix:
         include:
-          # Linux x86_64 (статическая сборка с musl)
+          # Linux x86_64
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
             use_cross: false
             suffix: x86_64-unknown-linux-musl
             extension: ""
 
-          # Linux ARM64 (сборка через cross, так как нужен кросс-компилятор)
+          # Linux ARM64
           - os: ubuntu-latest
             target: aarch64-unknown-linux-musl
             use_cross: true
@@ -43,14 +43,14 @@ jobs:
             suffix: x86_64-pc-windows-msvc
             extension: .exe
 
-          # macOS Intel (используем старый раннер с Intel CPU)
-          - os: macos-13
+          # macOS Intel
+          - os: macos-latest
             target: x86_64-apple-darwin
             use_cross: false
             suffix: x86_64-apple-darwin
             extension: ""
 
-          # macOS Apple Silicon (ARM64)
+          # macOS Apple Silicon
           - os: macos-latest
             target: aarch64-apple-darwin
             use_cross: false
@@ -98,7 +98,6 @@ jobs:
           path: ${{ env.artifact_path }}
           if-no-files-found: error
 
-  # Джоба создания GitHub-релиза (запускается только если указан tag_name)
   create-release:
     name: Создание GitHub Release
     runs-on: ubuntu-latest
